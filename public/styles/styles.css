@@ -1,0 +1,97 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    font-size: 50px;
+}
+
+h2 {
+    font-size: 30px;
+    text-align: center;
+}
+
+.card {
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(112, 124, 177);
+    border-radius: 10px;
+    box-shadow: 10px 10px 25px black;
+    padding: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 30px;
+    margin: 2.5px;
+    margin-bottom: 15px;
+}
+
+p {
+    font-size: 22px;
+    margin: 5px;
+}
+
+.price  {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 25px;
+}
+
+#addButton  {
+
+    font-size: 22px;
+    padding: 5px;
+    width: 40%;
+    border-radius: 10px;
+    border: none;
+    background-color: rgb(167, 173, 171);
+
+}
+
+.productsForm {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    margin: 50px;
+}
+
+label {
+    font-size: 20px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+input {
+    font-size: 20px;
+    padding: 3px;
+}
+
+button {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 22px;
+    width: 60%;
+    align-self: center;
+}
+
+.forms {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+#productList {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
