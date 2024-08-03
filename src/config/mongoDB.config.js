@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import envs from "./envs.config.js";
 
 export const connectMongoDB = async () => {
     try {
-        mongoose.connect("mongodb+srv://pclavellino:Mongo2024@coderbackend-i.urz19td.mongodb.net/ProyectoFinal-Backend-1")
+        mongoose.connect(envs.MONGO_URL)
         console.log("Mongo DB Conectado")
     } catch(error) {
         console.log(`${error}`)

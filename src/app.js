@@ -2,13 +2,17 @@ import express from "express";
 import routes from "./routes/index.routes.js";
 import viewRoutes from "./routes/views.routes.js"
 import handlebars from "express-handlebars";
+import session from "express-session";
 import { Server } from "socket.io";
 import { connectMongoDB } from "./config/mongoDB.config.js";
+import passport from "passport";
+import { initializePassport } from "./config/passport.config.js";
+import envs from "./config/envs.config.js";
 import __dirname from "./dirname.js";
 import productDao from "./dao/mongoDB/product.dao.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
-const PORT = 8080;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -18,8 +22,8 @@ app.use(express.static("public"));
 
 connectMongoDB();
 
-const httpServer = app.listen(PORT, () => {
-    console.log(`Servidor iniciado y escuchando en el puerto ${PORT}`)
+const httpServer = app.listen(envs.PORT, () => {
+    console.log(`Servidor iniciado y escuchando en el puerto ${envs.PORT}`)
 });
 
 // Inicialización de Socket.io
@@ -42,10 +46,32 @@ app.engine("hbs", hbs.engine);
 app.set("views", __dirname + "/views");
 app.set("view engine", "hbs");
 
+// Inicializacion de Cookie Parser
+
+app.use(cookieParser());
+
+// Configuracion de Sesiones
+
+app.use(
+    session({
+        secret: "Coder",
+        resave: true,
+        saveUninitialized: true
+    })
+)
+
+// Inicializacion de Passport
+
+initializePassport()
+app.use(passport.initialize())
+app.use(passport.session())
+
+
 // Configuración de Rutas
 
 app.use("/", viewRoutes);
 app.use("/api", routes);
+
 
 // Conexión de Socket.io
 

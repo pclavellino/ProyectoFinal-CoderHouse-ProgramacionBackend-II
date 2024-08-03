@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { checkProductData } from "../middlewares/checkProductData.middleware.js";
 import { checkProductExistence } from "../middlewares/checkProductExistence.middleware.js";
+import { passportCall } from "../middlewares/passport.middleware.js";
 import productDao from "../dao/mongoDB/product.dao.js";
+import { authorization } from "../middlewares/authorization.middleware.js";
 
 const router = Router()
 
-router.get("/", async (req, res) => {
+router.get("/", passportCall("jwt"), async (req, res) => {
 
     try {
         const { limit, page, sort, category, status } = req.query;
@@ -38,7 +40,7 @@ router.get("/", async (req, res) => {
     
 })
 
-router.get("/:pid", checkProductExistence, async (req, res) => {
+router.get("/:pid", passportCall("jwt"), checkProductExistence, async (req, res) => {
 
     try {
         const { pid } = req.params
@@ -51,7 +53,7 @@ router.get("/:pid", checkProductExistence, async (req, res) => {
 
 })
 
-router.post("/", checkProductData, async (req, res) => {
+router.post("/", passportCall("jwt"), authorization("admin"), checkProductData, async (req, res) => {
 
     try {
         const body = req.body;
@@ -65,7 +67,7 @@ router.post("/", checkProductData, async (req, res) => {
     
 })
 
-router.put("/:pid", checkProductExistence, async (req, res) => {
+router.put("/:pid", passportCall("jwt"), authorization("admin"), checkProductExistence, async (req, res) => {
 
     try {
         const { pid } = req.params;
@@ -79,7 +81,7 @@ router.put("/:pid", checkProductExistence, async (req, res) => {
 
 })
 
-router.delete("/:pid", checkProductExistence, async (req, res) => {
+router.delete("/:pid", passportCall("jwt"), authorization("admin"), checkProductExistence, async (req, res) => {
 
     try {
         const { pid } = req.params;
