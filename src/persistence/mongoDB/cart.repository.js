@@ -23,6 +23,13 @@ const createCart = async(data) => {
     return cart;
 }
 
+// Actualizar un carrito
+
+const updateCart = async(cid, data) => {
+    const cartUpdate = await cartModel.findByIdAndUpdate(cid, data, { new: true });
+    return cartUpdate;
+}
+
 
 // Agregar un producto a un carrito
 
@@ -74,4 +81,13 @@ const emptyCart = async(cid) => {
     return cart;
 }
 
-export default { getAll, getById, createCart, addProductToCart, deleteProductfromCart, emptyCart, updateQuantity };
+export default { 
+    getAll, 
+    getById, 
+    createCart,
+    updateCart, 
+    addProductToCart, 
+    deleteProductfromCart, 
+    emptyCart, 
+    updateQuantity 
+};

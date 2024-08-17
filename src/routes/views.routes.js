@@ -1,7 +1,7 @@
 import { Router } from "express";
-import productDao from "../dao/mongoDB/product.dao.js";
-import cartDao from "../dao/mongoDB/cart.dao.js";
 import { io } from "../app.js";
+import productsController from "../controllers/products.controller.js";
+import cartsController from "../controllers/carts.controller.js";
 
 const router = Router()
 
@@ -18,16 +18,16 @@ router.get("/", async (req, res) => {
         }
 
         if (category) {
-            const products = await productDao.getAll({category}, options)
+            const products = await productsController.getAllProducts({category}, options)
             return res.status(200).json({status: "Success", products})
         }
 
         if (status) {
-            const products = await productDao.getAll({status}, options)
+            const products = productsController.getAllProducts({status}, options)
             return res.status(200).json({status: "Success", products}) 
         }
 
-        const products = await productDao.getAll({}, options)
+        const products = await productsController.getAllProducts({}, options)
         res.render("home", { products, styles: "styles.css"} )
     } catch(error) {
         console.log(error)
@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
 router.get("/carts/:cid", async (req, res) => {
     try {
         const {cid} = req.params
-        const cart = await cartDao.getById(cid)
+        const cart = await cartsController.getCartByID(cid)
         res.render("carts", {cart, styles: "styles.css"} )
     } catch(error) {
         console.log(error)
@@ -59,8 +59,8 @@ router.get("/realtimeproducts", async (req, res) => {
 router.post("/realtimeproducts", async (req, res) => {
     try {
         const { title, description, price, code, stock, category } = req.body;
-        await productDao.createProd({ title, description, price, code, stock, category })
-        const products = await productDao.getAll()
+        await productsController.createProduct({ title, description, price, code, stock, category })
+        const products = await productsController.getAllProducts()
         io.emit("products", products.docs)
         res.render("realTimeProducts", {styles: "styles.css"})
     } catch(error) {
@@ -72,8 +72,8 @@ router.post("/realtimeproducts", async (req, res) => {
 router.delete("/realtimeproducts", async (req, res) => {
     try {
         const { id } = req.body;
-        await productDao.deleteProd(id)
-        const products = await productDao.getAll()
+        await productsController.deleteProduct(id)
+        const products = await productsController.getAllProducts()
         io.emit("products", products.docs)
         res.render("realTimeProducts", {styles: "styles.css"})
     } catch(error) {

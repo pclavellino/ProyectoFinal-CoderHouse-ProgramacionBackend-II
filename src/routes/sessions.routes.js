@@ -1,59 +1,31 @@
 import { Router } from "express";
 import passport from "passport";
 import { passportCall } from "../middlewares/passport.middleware.js";
-import { createToken } from "../utils/jwt.js";
+import sessionsController from "../controllers/sessions.controller.js";
 
 const router = Router()
 
 // Registro
 
-router.post("/register", passportCall("register"), async (req, res) => {
-    try {
-        res.status(200).json({status: "Success", msg: "Usuario creado correctamente"})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+router.post("/register", passportCall("register"), sessionsController.register)
 
 
 // Login
 
-router.post("/login", passportCall("login"), async (req, res) => {
-    try {
-        const token = createToken(req.user);
-        res.cookie("token", token, { httpOnly: true});
-
-        res.status(200).json({status: "Success", payload: req.user})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+router.post("/login", passportCall("login"), sessionsController.login)
 
 
 // Google Login
 
 router.get("/googleLogin", passport.authenticate("googleLogin", 
-    {scope: ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"], session: false,}), 
-    async (req, res) => {
-    try {
-        const token = createToken(req.user);
-        res.cookie("token", token, { httpOnly: true});
-
-        res.status(200).json({status: "Success", payload: req.user})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+    {scope: ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"], session: false,}),
+    sessionsController.googleLogin 
+    )
 
 
 // Verificacion de usuario logueado
 
-router.get("/current", passportCall("jwt"), async (req, res) => {
-    res.status(200).json({ status: "Success", user: req.user})
-})
+router.get("/current", passportCall("jwt"), sessionsController.verifyLoggedUser)
 
 
 export default router;

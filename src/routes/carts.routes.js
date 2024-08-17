@@ -1,80 +1,24 @@
 import { Router } from "express";
-import cartDao from "../dao/mongoDB/cart.dao.js";
 import { checkCartExistence } from "../middlewares/checkCartExistence.middleware.js";
-import { checkProductExistence } from "../middlewares/checkProductExistence.middleware.js"
+import { checkProductExistence } from "../middlewares/checkProductExistence.middleware.js";
+import { authorization } from "../middlewares/authorization.middleware.js"; 
+import cartsController from "../controllers/carts.controller.js";
+import { passportCall } from "../middlewares/passport.middleware.js";
 
 const router = Router()
 
-router.post("/", async (req, res) => {
+router.post("/", passportCall("jwt"), cartsController.createCart)
 
-    try {
-        const cart = await cartDao.createCart()
-        res.status(201).json({status: "Success", cart})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+router.get("/:cid", passportCall("jwt"), checkCartExistence, cartsController.getCartByID)
 
-router.get("/:cid", checkCartExistence, async (req, res) => {
+router.post("/:cid/product/:pid", passportCall("jwt"), authorization("user"), checkCartExistence, checkProductExistence, cartsController.addProductToCart)
 
-    try {
-        const { cid } = req.params;
-        const cart = await cartDao.getById(cid)
-        res.status(200).json({status: "Success", cart})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+router.put("/:cid/product/:pid", passportCall("jwt"), checkCartExistence, checkProductExistence, cartsController.updateQuantity)
 
-router.post("/:cid/product/:pid", checkCartExistence, checkProductExistence, async (req, res) => {
+router.delete("/:cid/product/:pid", passportCall("jwt"), checkCartExistence, checkProductExistence, cartsController.deleteProductFromCart)
 
-    try {
-        const { cid, pid } = req.params;
-        const cartUpdate = await cartDao.addProductToCart(cid, pid)     
-        res.status(200).json({status: "Success", cartUpdate})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+router.get("/:cid/purchase", passportCall("jwt"), authorization("user"), checkCartExistence, cartsController.purchaseCart)
 
-router.put("/:cid/product/:pid", checkCartExistence, checkProductExistence, async (req, res) => {
-
-    try {
-        const { cid, pid } = req.params;
-        const { quantity } = req.body;
-        const cartUpdate = await cartDao.updateQuantity(cid, pid, quantity)    
-        res.status(200).json({status: "Success", cartUpdate})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
-
-router.delete("/:cid/product/:pid", checkCartExistence, checkProductExistence, async (req, res) => {
-
-    try {
-        const { cid, pid } = req.params;
-        const cartUpdate = await cartDao.deleteProductfromCart(cid, pid)    
-        res.status(200).json({status: "Success", cartUpdate})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
-
-router.delete("/:cid", checkCartExistence, async (req, res) => {
-
-    try {
-        const { cid } = req.params;
-        const cartUpdate = await cartDao.emptyCart(cid)    
-        res.status(200).json({status: "Success", cartUpdate})
-    } catch(error) {
-        console.log(error)
-        res.status(500).json({status: "Error", msg: "Error interno del servidor"})
-    }
-})
+router.delete("/:cid", passportCall("jwt"), checkCartExistence, cartsController.emptyCart)
 
 export default router;

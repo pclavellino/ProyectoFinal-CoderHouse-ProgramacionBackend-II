@@ -2,11 +2,12 @@ import passport from "passport";
 import local from "passport-local";
 import jwt from "passport-jwt";
 import google from "passport-google-oauth20";
-import usersDao from "../dao/mongoDB/users.dao.js";
-import cartDao from "../dao/mongoDB/cart.dao.js";
 import { createHash, validatePassword } from "../utils/hashPassword.js";
 import { cookieExtractor } from "../utils/cookieExtractor.js";
 import envs from "./envs.config.js";
+import { loggedUserDto } from "../dto/loggedUser.dto.js";
+import usersRepository from "../persistence/mongoDB/users.repository.js";
+import cartRepository from "../persistence/mongoDB/cart.repository.js";
 
 
 const LocalStrategy = local.Strategy;
@@ -21,10 +22,10 @@ export const initializePassport = () => {
         new LocalStrategy({ passReqToCallback: true, usernameField: "email"}, async( req, username, password, done) => {
             try {
                 const { first_name, last_name, age, role } = req.body;
-                const user = await usersDao.getUser(username);
+                const user = await usersRepository.getUser(username);
                 if (user) return done(null, false, { msg: "El usuario ya se encuentra registrado" })
 
-                const cart = await cartDao.createCart()
+                const cart = await cartRepository.createCart()
 
                 const newUser = {
                     first_name,
@@ -36,7 +37,7 @@ export const initializePassport = () => {
                     cart: cart._id,
                 }
 
-                const userCreated = await usersDao.createUser(newUser)
+                const userCreated = await usersRepository.createUser(newUser)
                 
                 return done(null, userCreated)
 
@@ -50,11 +51,13 @@ export const initializePassport = () => {
         "login",
         new LocalStrategy({ usernameField: "email"}, async(username, password, done) => {
             try {
-                const user = await usersDao.getUser(username);
+                const user = await usersRepository.getUser(username);
 
                 if (!user || !validatePassword(user.password, password)) return done(null, false, {msg: "Usuario o contraseña incorrectos"})
 
-                return done(null, user)
+                const loggedUser = loggedUserDto(user)
+
+                return done(null, loggedUser)
 
             } catch(error) {
                 done(error)
@@ -86,7 +89,7 @@ export const initializePassport = () => {
             async(accessToken, refreshToken, profile, cb) => {
                 try {
                     const { name, emails } = profile;
-                    const user = await usersDao.getUser(emails[0].value)
+                    const user = await usersRepository.getUser(emails[0].value)
 
                     if(user) {
                         return cb(null, user)
@@ -97,7 +100,7 @@ export const initializePassport = () => {
                             email: emails[0].value
                         }
 
-                        const userCreated = await usersDao.createUser(newUser);
+                        const userCreated = await usersRepository.createUser(newUser);
                         return cb(null, userCreated);
                     } 
                 } catch(error) {
@@ -116,7 +119,7 @@ export const initializePassport = () => {
 
     passport.deserializeUser(async (id, done) => {
         try {
-            const user = await usersDao.getById(id);
+            const user = await usersRepository.getById(id);
             done(null, user);
         } catch (error) {
             done(error);

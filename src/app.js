@@ -9,8 +9,8 @@ import passport from "passport";
 import { initializePassport } from "./config/passport.config.js";
 import envs from "./config/envs.config.js";
 import __dirname from "./dirname.js";
-import productDao from "./dao/mongoDB/product.dao.js";
 import cookieParser from "cookie-parser";
+import productsController from "./controllers/products.controller.js";
 
 const app = express();
 
@@ -77,6 +77,6 @@ app.use("/api", routes);
 
 io.on("connection", async (socket) => {
     console.log("Nuevo Cliente Conectado")
-    const products = await productDao.getAll()
+    const products = await productsController.getAllProducts();
     io.emit("products", products.docs)
 });
