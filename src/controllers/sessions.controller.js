@@ -1,3 +1,4 @@
+import { currentUserDto } from "../dto/currentUser.dto.js";
 import { createToken } from "../utils/jwt.js";
 
 const register = async(req, res) => {
@@ -36,7 +37,8 @@ const googleLogin = async(req, res) => {
 }
 
 const verifyLoggedUser = async(req, res) => {
-    res.status(200).json({ status: "Success", user: req.user})
+    const loggedUser = currentUserDto(req.user)
+    res.status(200).json({ status: "Success", user: loggedUser})
 }
 
 export default {
